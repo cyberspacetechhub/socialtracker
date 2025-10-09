@@ -96,14 +96,14 @@ class UserService {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER || 'your-email@gmail.com',
-        pass: process.env.EMAIL_PASS || 'your-app-password'
+        user: config.email.user,
+        pass: config.email.pass
       }
     });
     
     try {
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
+      const info = await transporter.sendMail({
+        from: `"Social Tracker" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: 'Password Reset Code - Social Tracker',
         html: `
@@ -118,6 +118,7 @@ class UserService {
           </div>
         `
       });
+      console.log('Email sent successfully:', info.messageId);
     } catch (error) {
       console.error('Email sending failed:', error);
       throw new Error('Failed to send reset email');

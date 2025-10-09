@@ -92,9 +92,20 @@ class UserController {
   async forgotPassword(req, res, next) {
     try {
       const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: 'Email is required' });
+      }
+      
       await userService.sendPasswordResetCode(email);
       res.json({ message: 'Reset code sent to email' });
     } catch (error) {
+      if (error.message === 'User not found') {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      if (error.message === 'Failed to send reset email') {
+        return res.status(500).json({ error: 'Failed to send reset email' });
+      }
       next(error);
     }
   }

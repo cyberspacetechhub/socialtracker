@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
 import { forgotPassword, verifyResetCode, resetPassword } from '../../services/api';
 import toast from 'react-hot-toast';
 
 export default function ForgotPassword({ onBack }) {
-  const [step, setStep] = useState(1); // 1: email, 2: code, 3: new password
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const forgotMutation = useMutation({
     mutationFn: forgotPassword,
@@ -65,17 +65,50 @@ export default function ForgotPassword({ onBack }) {
     }
   });
 
-  const handleEmailSubmit = (e) => {
+  const handleEmailSubmit = async (e) => {
     e.preventDefault();
-    forgotMutation.mutate(email);
+    setLoading(true);
+    try {
+      await forgotPassword(email);
+      setStep(2);
+      toast.success('Reset code sent to your email!', {
+        duration: 4000,
+        icon: '📧',
+      });
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Failed to send reset code', {
+        duration: 4000,
+      });
+    }
+    setLoading(false);
   };
 
-  const handleCodeSubmit = (e) => {
+  const handleCodeSubmit = async (e) => {
     e.preventDefault();
-    verifyMutation.mutate({ email, code });
+    setLoading(true);
+    try {
+      const response = await verifyResetCode(email, code);
+      if (response.data.valid) {
+        setStep(3);
+        toast.success('Code verified successfully!', {
+          duration: 3000,
+          icon: '✓',
+        });
+      } else {
+        toast.error('Invalid or expired code', {
+          duration: 4000,
+          icon: '⚠️',
+        });
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Failed to verify code', {
+        duration: 4000,
+      });
+    }
+    setLoading(false);
   };
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
       toast.error('Passwords do not match', {
@@ -84,7 +117,20 @@ export default function ForgotPassword({ onBack }) {
       });
       return;
     }
-    resetMutation.mutate({ email, code, newPassword });
+    setLoading(true);
+    try {
+      await resetPassword(email, code, newPassword);
+      toast.success('Password reset successfully!', {
+        duration: 4000,
+        icon: '🔐',
+      });
+      setTimeout(() => onBack(), 1500);
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Failed to reset password', {
+        duration: 4000,
+      });
+    }
+    setLoading(false);
   };
 
   return (
@@ -117,10 +163,10 @@ export default function ForgotPassword({ onBack }) {
             
             <button
               type="submit"
-              disabled={forgotMutation.isPending}
+              disabled={loading}
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              {forgotMutation.isPending ? 'Sending...' : 'Send Reset Code'}
+              {loading ? 'Sending...' : 'Send Reset Code'}
             </button>
           </form>
         )}
@@ -144,10 +190,10 @@ export default function ForgotPassword({ onBack }) {
             
             <button
               type="submit"
-              disabled={verifyMutation.isPending}
+              disabled={loading}
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              {verifyMutation.isPending ? 'Verifying...' : 'Verify Code'}
+              {loading ? 'Verifying...' : 'Verify Code'}
             </button>
           </form>
         )}
@@ -185,10 +231,10 @@ export default function ForgotPassword({ onBack }) {
             
             <button
               type="submit"
-              disabled={resetMutation.isPending}
+              disabled={loading}
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              {resetMutation.isPending ? 'Resetting...' : 'Reset Password'}
+              {loading ? 'Resetting...' : 'Reset Password'}
             </button>
           </form>
         )}

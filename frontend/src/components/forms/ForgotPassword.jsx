@@ -10,60 +10,7 @@ export default function ForgotPassword({ onBack }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const forgotMutation = useMutation({
-    mutationFn: forgotPassword,
-    onSuccess: () => {
-      setStep(2);
-      toast.success('Reset code sent to your email!', {
-        duration: 4000,
-        icon: '📧',
-      });
-    },
-    onError: (error) => {
-      toast.error(error.response?.data?.error || 'Failed to send reset code', {
-        duration: 4000,
-      });
-    }
-  });
 
-  const verifyMutation = useMutation({
-    mutationFn: ({ email, code }) => verifyResetCode(email, code),
-    onSuccess: (data) => {
-      if (data.valid) {
-        setStep(3);
-        toast.success('Code verified successfully!', {
-          duration: 3000,
-          icon: '✓',
-        });
-      } else {
-        toast.error('Invalid or expired code', {
-          duration: 4000,
-          icon: '⚠️',
-        });
-      }
-    },
-    onError: (error) => {
-      toast.error(error.response?.data?.error || 'Failed to verify code', {
-        duration: 4000,
-      });
-    }
-  });
-
-  const resetMutation = useMutation({
-    mutationFn: ({ email, code, newPassword }) => resetPassword(email, code, newPassword),
-    onSuccess: () => {
-      toast.success('Password reset successfully!', {
-        duration: 4000,
-        icon: '🔐',
-      });
-      setTimeout(() => onBack(), 1500);
-    },
-    onError: (error) => {
-      toast.error(error.response?.data?.error || 'Failed to reset password', {
-        duration: 4000,
-      });
-    }
-  });
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();

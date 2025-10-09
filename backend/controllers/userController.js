@@ -98,14 +98,12 @@ class UserController {
       }
       
       await userService.sendPasswordResetCode(email);
-      res.json({ message: 'Reset code sent to email' });
+      res.json({ message: 'Reset code sent to email (check server logs if email not configured)' });
     } catch (error) {
       if (error.message === 'User not found') {
         return res.status(404).json({ error: 'User not found' });
       }
-      if (error.message === 'Failed to send reset email') {
-        return res.status(500).json({ error: 'Failed to send reset email' });
-      }
+      console.error('Forgot password error:', error);
       next(error);
     }
   }

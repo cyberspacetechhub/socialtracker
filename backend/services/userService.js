@@ -6,6 +6,20 @@ const nodemailer = require('nodemailer');
 const config = require('../config/config');
 
 class UserService {
+  constructor() {
+    if (config.email.user && config.email.pass) {
+      this.transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: config.email.user,
+          pass: config.email.pass
+        }
+      });
+    } else {
+      this.transporter = null;
+    }
+  }
+
   async createUser(userData) {
     const user = new User(userData);
     await user.save();
@@ -93,16 +107,12 @@ class UserService {
   }
 
   async sendResetEmail(email, code) {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: config.email.user,
-        pass: config.email.pass
-      }
-    });
+    if (!this.transporter) {
+      throw new Error('Email service not configured');
+    }
     
     try {
-      const info = await transporter.sendMail({
+      await this.transporter.sendMail({
         from: config.email.user,
         to: email,
         subject: 'Password Reset Code - Social Tracker',
@@ -118,7 +128,6 @@ class UserService {
           </div>
         `
       });
-      console.log('Email sent successfully:', info.messageId);
     } catch (error) {
       console.error('Email sending failed:', error.message);
       throw new Error('Failed to send reset email');

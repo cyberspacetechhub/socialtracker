@@ -13,9 +13,12 @@ class UserService {
         auth: {
           user: config.email.user,
           pass: config.email.pass
-        }
+        },
+        timeout: 10000
       });
+      console.log('Email transporter configured for:', config.email.user);
     } else {
+      console.log('Email configuration missing');
       this.transporter = null;
     }
   }
@@ -83,8 +86,9 @@ class UserService {
     // For development/testing - log the code if email fails
     try {
       await this.sendResetEmail(email, resetCode);
+      console.log('Email sent successfully to:', email);
     } catch (error) {
-      console.log('Email failed, reset code for', email, ':', resetCode);
+      console.log('Email service unavailable. Reset code for', email, ':', resetCode);
       // Don't throw error, allow the process to continue
     }
   }
@@ -118,22 +122,31 @@ class UserService {
       return;
     }
     
-    await this.transporter.sendMail({
-      from: config.email.user,
-      to: email,
-      subject: 'Password Reset Code - Social Tracker',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #4f46e5;">Password Reset Request</h2>
-          <p>Your password reset code is:</p>
-          <div style="background: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
-            <span style="font-size: 32px; font-weight: bold; color: #1f2937; letter-spacing: 4px;">${code}</span>
+    console.log('Attempting to send email to:', email);
+    
+    await Promise.race([
+      this.transporter.sendMail({
+        from: config.email.user,
+        to: email,
+        subject: 'Password Reset Code - Social Tracker',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #4f46e5;">Password Reset Request</h2>
+            <p>Your password reset code is:</p>
+            <div style="background: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+              <span style="font-size: 32px; font-weight: bold; color: #1f2937; letter-spacing: 4px;">${code}</span>
+            </div>
+            <p style="color: #6b7280;">This code will expire in 10 minutes.</p>
+            <p style="color: #6b7280; font-size: 12px;">If you didn't request this, please ignore this email.</p>
           </div>
-          <p style="color: #6b7280;">This code will expire in 10 minutes.</p>
-          <p style="color: #6b7280; font-size: 12px;">If you didn't request this, please ignore this email.</p>
-        </div>
-      `
-    });
+        `
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Email timeout')), 15000)
+      )
+    ]);
+    
+    console.log('Email sent successfully to:', email);
   }
 
   generateUserResponse(user) {

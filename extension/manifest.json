@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "Social Tracker",
+  "version": "1.0.0",
+  "description": "Automatically track time spent on social media platforms",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs",
+    "notifications"
+  ],
+  "host_permissions": [
+    "*://*.facebook.com/*",
+    "*://*.twitter.com/*",
+    "*://*.x.com/*",
+    "*://*.instagram.com/*",
+    "*://*.tiktok.com/*",
+    "*://*.linkedin.com/*",
+    "*://*.youtube.com/*",
+    "http://localhost:5000/*",
+    "https://socialtracker-nlnk.onrender.com/*"
+  ],
+  "background": {
+    "service_worker": "src/background/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.facebook.com/*",
+        "*://*.twitter.com/*",
+        "*://*.x.com/*",
+        "*://*.instagram.com/*",
+        "*://*.tiktok.com/*",
+        "*://*.linkedin.com/*",
+        "*://*.youtube.com/*"
+      ],
+      "js": ["working-overlay.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "Social Tracker"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

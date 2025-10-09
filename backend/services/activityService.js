@@ -5,17 +5,18 @@ const config = require('../config/config');
 
 class ActivityService {
   constructor() {
-    // Only create transporter if email config is provided
-    if (config.email.host && config.email.user && config.email.pass) {
+    if (config.email.user && config.email.pass) {
       this.transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
           user: config.email.user,
           pass: config.email.pass
-        }
+        },
+        timeout: 10000
       });
+      console.log('Activity email transporter configured for:', config.email.user);
     } else {
-      console.log('Email configuration not provided, email notifications disabled');
+      console.log('Email configuration missing for activity service');
       this.transporter = null;
     }
   }
@@ -127,7 +128,12 @@ class ActivityService {
     };
     
     try {
-      await this.transporter.sendMail(mailOptions);
+      await Promise.race([
+        this.transporter.sendMail(mailOptions),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Email timeout')), 15000)
+        )
+      ]);
       console.log(`Email notification sent to ${user.email} for ${platform}`);
     } catch (error) {
       console.error('Email notification failed:', error.message);

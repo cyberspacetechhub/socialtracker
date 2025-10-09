@@ -96,14 +96,20 @@ class UserService {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: config.email.user,
-        pass: config.email.pass
-      }
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      },
+      connectionTimeout: 60000,
+      greetingTimeout: 30000,
+      socketTimeout: 60000
     });
     
     try {
+      // Verify connection first
+      await transporter.verify();
+      
       const info = await transporter.sendMail({
-        from: `"Social Tracker" <${process.env.EMAIL_USER}>`,
+        from: process.env.EMAIL_USER,
         to: email,
         subject: 'Password Reset Code - Social Tracker',
         html: `
@@ -120,7 +126,10 @@ class UserService {
       });
       console.log('Email sent successfully:', info.messageId);
     } catch (error) {
-      console.error('Email sending failed:', error);
+      console.error('Email sending failed:', error.message);
+      if (error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT') {
+        throw new Error('Email service temporarily unavailable. Please try again later.');
+      }
       throw new Error('Failed to send reset email');
     }
   }

@@ -93,8 +93,9 @@ async function loadActiveSessions() {
 }
 
 function openDashboard() {
-    chrome.tabs.create({ url: 'http://localhost:3000/dashboard' });
-}
+    // chrome.tabs.create({ url: 'http://localhost:3000/dashboard' });
+    chrome.tabs.create({ url: 'https://my-social-tracker.vercel.app/dashboard' });
+};
 
 async function getAuthToken() {
     return new Promise((resolve) => {

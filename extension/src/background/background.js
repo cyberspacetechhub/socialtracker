@@ -258,7 +258,8 @@ async function handleTakeBreak(tabId) {
     await endSession(tabId);
     
     // Open dashboard in new tab
-    chrome.tabs.create({ url: 'http://localhost:3000/dashboard' });
+    // chrome.tabs.create({ url: 'http://localhost:3000/dashboard' });
+    chrome.tabs.create({ url: 'https://my-social-tracker.vercel.app/dashboard' });
     
     // Close the social media tab
     chrome.tabs.remove(tabId);

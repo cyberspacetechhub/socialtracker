@@ -17,7 +17,7 @@ const limiter = rateLimit({
 // Middleware
 app.use(limiter);
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://my-social-tracker.vercel.app'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -39,6 +39,7 @@ app.get('/api/health', (req, res) => {
 // Add OPTIONS handler for preflight requests
 app.options('*', (req, res) => {
   res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.header('Access-Control-Allow-Origin', 'https://my-social-tracker.vercel.app');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.sendStatus(200);

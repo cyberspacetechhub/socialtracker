@@ -1,0 +1,22 @@
+src/
+├── config/
+│   └── config.js
+├── connections/
+│   └── db.js
+├── models/
+│   └── User.js
+│   └── ActivityLog.js
+├── services/
+│   └── activityService.js
+│   └── userService.js
+├── controllers/
+│   └── activityController.js
+│   └── userController.js
+├── middlewares/
+│   └── authMiddleware.js
+│   └── errorHandler.js
+├── routes/
+│   └── activityRoutes.js
+│   └── userRoutes.js
+├── app.js
+└── server.js

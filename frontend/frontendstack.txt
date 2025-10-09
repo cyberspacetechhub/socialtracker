@@ -1,0 +1,29 @@
+src/
+├── assets/              # Static files (images, icons, fonts)
+├── components/          # Reusable UI components
+│   ├── charts/          # Chart components (e.g., usage graphs)
+│   ├── forms/           # Form components (e.g., limit settings)
+│   └── layout/          # Layout components (Navbar, Sidebar)
+├── features/            # Feature-based modules
+│   ├── auth/            # Login, signup, session handling
+│   ├── dashboard/       # Usage analytics and charts
+│   ├── limits/          # Time limit settings
+│   ├── notifications/   # Notification preferences
+│   └── activity/        # Activity logs and history
+├── hooks/               # Custom React hooks
+├── services/            # API calls and business logic
+├── store/               # Global state (Redux or Zustand)
+├── utils/               # Utility functions
+├── config/              # App-wide config (API base URL, constants)
+├── routes/              # Route definitions
+├── App.jsx              # Root component
+└── main.jsx             # Entry point
+
+features
+
+features/auth/
+├── components/          # Feature-specific components
+├── pages/               # Screens like LoginPage, SignupPage
+├── api.js               # API calls for auth
+├── slice.js             # Redux slice or Zustand store
+├── hooks.js             # Custom hooks for auth

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Tracker API</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .endpoint { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .method { color: #fff; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
+        .get { background: #61affe; }
+        .post { background: #49cc90; }
+        .put { background: #fca130; }
+    </style>
+</head>
+<body>
+    <h1>Social Tracker API</h1>
+    <p>Backend API for Social Media Usage Tracking</p>
+    
+    <h2>Authentication</h2>
+    <div class="endpoint">
+        <span class="method post">POST</span> <strong>/api/users/register</strong> - Register new user
+    </div>
+    <div class="endpoint">
+        <span class="method post">POST</span> <strong>/api/users/login</strong> - Login user
+    </div>
+    <div class="endpoint">
+        <span class="method get">GET</span> <strong>/api/users/profile</strong> - Get user profile
+    </div>
+    
+    <h2>Activity Tracking</h2>
+    <div class="endpoint">
+        <span class="method post">POST</span> <strong>/api/activity/start</strong> - Start tracking session
+    </div>
+    <div class="endpoint">
+        <span class="method put">PUT</span> <strong>/api/activity/end/:id</strong> - End tracking session
+    </div>
+    <div class="endpoint">
+        <span class="method get">GET</span> <strong>/api/activity/daily/:date</strong> - Get daily usage
+    </div>
+    
+    <h2>Health Check</h2>
+    <div class="endpoint">
+        <span class="method get">GET</span> <strong>/api/health</strong> - Server status
+    </div>
+</body>
+</html>

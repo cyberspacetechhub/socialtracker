@@ -1,0 +1,131 @@
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const config = require('../config/config');
+
+class UserService {
+  async createUser(userData) {
+    const user = new User(userData);
+    await user.save();
+    return this.generateUserResponse(user);
+  }
+
+  async authenticateUser(email, password) {
+    const user = await User.findOne({ email });
+    if (!user || !(await user.comparePassword(password))) {
+      throw new Error('Invalid credentials');
+    }
+    return this.generateUserResponse(user);
+  }
+
+  async getUserById(id) {
+    return User.findById(id).select('-password');
+  }
+
+  async updateUserLimits(userId, limits) {
+    return User.findByIdAndUpdate(
+      userId,
+      { $set: { limits } },
+      { new: true }
+    ).select('-password');
+  }
+
+  async updateNotificationSettings(userId, notifications) {
+    return User.findByIdAndUpdate(
+      userId,
+      { $set: { notifications } },
+      { new: true }
+    ).select('-password');
+  }
+
+  async updateProfile(userId, profileData) {
+    return User.findByIdAndUpdate(
+      userId,
+      { $set: profileData },
+      { new: true }
+    ).select('-password');
+  }
+
+  async changePassword(userId, currentPassword, newPassword) {
+    const user = await User.findById(userId);
+    if (!(await user.comparePassword(currentPassword))) {
+      throw new Error('Invalid current password');
+    }
+    user.password = newPassword;
+    await user.save();
+  }
+
+  async sendPasswordResetCode(email) {
+    const user = await User.findOne({ email });
+    if (!user) throw new Error('User not found');
+    
+    const resetCode = crypto.randomInt(100000, 999999).toString();
+    user.resetCode = resetCode;
+    user.resetCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    await user.save();
+    
+    await this.sendResetEmail(email, resetCode);
+  }
+
+  async verifyResetCode(email, code) {
+    const user = await User.findOne({ 
+      email, 
+      resetCode: code,
+      resetCodeExpires: { $gt: new Date() }
+    });
+    return !!user;
+  }
+
+  async resetPassword(email, code, newPassword) {
+    const user = await User.findOne({ 
+      email, 
+      resetCode: code,
+      resetCodeExpires: { $gt: new Date() }
+    });
+    if (!user) throw new Error('Invalid or expired reset code');
+    
+    user.password = newPassword;
+    user.resetCode = undefined;
+    user.resetCodeExpires = undefined;
+    await user.save();
+  }
+
+  async sendResetEmail(email, code) {
+    const transporter = nodemailer.createTransporter({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER || 'your-email@gmail.com',
+        pass: process.env.EMAIL_PASS || 'your-app-password'
+      }
+    });
+    
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Password Reset Code - Social Tracker',
+      html: `
+        <h2>Password Reset Request</h2>
+        <p>Your password reset code is: <strong>${code}</strong></p>
+        <p>This code will expire in 10 minutes.</p>
+      `
+    });
+  }
+
+  generateUserResponse(user) {
+    const token = jwt.sign({ userId: user._id }, config.jwtSecret, { expiresIn: '7d' });
+    return {
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        limits: user.limits,
+        notifications: user.notifications
+      }
+    };
+  }
+}
+
+module.exports = new UserService();

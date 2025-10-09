@@ -8,21 +8,21 @@ export default function ActivityPage() {
   const [selectedPlatform, setSelectedPlatform] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isClearing, setIsClearing] = useState(false);
+  const [showClearModal, setShowClearModal] = useState(false);
   
   const { data: activityData, isLoading, refetch } = useActivityHistory(
     currentPage, 
     selectedPlatform || null
   );
 
+  const [showClearModal, setShowClearModal] = useState(false);
+
   const handleClearActivity = async () => {
-    if (!confirm('Are you sure you want to clear all activity data? This action cannot be undone.')) {
-      return;
-    }
-    
     setIsClearing(true);
     try {
       await clearActivity();
       refetch();
+      setShowClearModal(false);
       alert('All activity data cleared successfully!');
     } catch (error) {
       alert('Failed to clear activity data. Please try again.');
@@ -106,12 +106,11 @@ export default function ActivityPage() {
             
             {activities.length > 0 && (
               <button
-                onClick={handleClearActivity}
-                disabled={isClearing}
-                className="flex items-center px-4 py-2 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={() => setShowClearModal(true)}
+                className="flex items-center px-4 py-2 md:px-4 md:py-2 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded-lg transition-all duration-200 transform hover:scale-105"
               >
-                <TrashIcon className="h-4 w-4 mr-2" />
-                {isClearing ? 'Clearing...' : 'Clear All Activity'}
+                <TrashIcon className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline ml-2">Clear All Activity</span>
               </button>
             )}
           </div>
@@ -214,6 +213,36 @@ export default function ActivityPage() {
           </div>
         )}
       </div>
+
+      {/* Clear Activity Modal */}
+      {showClearModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <div className="flex items-center mb-4">
+              <TrashIcon className="h-6 w-6 text-red-600 mr-3" />
+              <h3 className="text-lg font-semibold text-gray-900">Clear All Activity</h3>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to clear all activity data? This action cannot be undone and will permanently delete your usage history.
+            </p>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowClearModal(false)}
+                className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleClearActivity}
+                disabled={isClearing}
+                className="flex-1 px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {isClearing ? 'Clearing...' : 'Clear All'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -93,9 +93,10 @@ function createWorkingOverlay() {
     ">
       <div style="
         height: 100%;
-        background: #fca5a5;
-        width: 100%;
+        background: ${currentUsage >= dailyLimit ? '#ef4444' : currentUsage > dailyLimit * 0.8 ? '#f59e0b' : '#10b981'};
+        width: ${Math.min((currentUsage / dailyLimit) * 100, 100)}%;
         border-radius: 2px;
+        transition: all 0.3s ease;
       "></div>
     </div>
     <div id="take-break-btn" style="
@@ -163,9 +164,10 @@ function createWorkingOverlay() {
       ">
         <div style="
           height: 100%;
-          background: #fca5a5;
-          width: 100%;
+          background: ${currentUsage >= dailyLimit ? '#ef4444' : currentUsage > dailyLimit * 0.8 ? '#f59e0b' : '#10b981'};
+          width: ${Math.min((currentUsage / dailyLimit) * 100, 100)}%;
           border-radius: 2px;
+          transition: all 0.3s ease;
         "></div>
       </div>
       <div id="take-break-btn" style="

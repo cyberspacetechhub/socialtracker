@@ -83,6 +83,15 @@ class ActivityController {
       next(error);
     }
   }
+
+  async clearActivity(req, res, next) {
+    try {
+      await ActivityLog.deleteMany({ userId: req.user._id });
+      res.json({ message: 'All activity data cleared successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new ActivityController();

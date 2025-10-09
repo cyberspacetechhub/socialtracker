@@ -9,5 +9,6 @@ router.put('/end/:activityId', authMiddleware, activityController.endSession);
 router.get('/daily/:date', authMiddleware, activityController.getDailyUsage);
 router.get('/weekly', authMiddleware, activityController.getWeeklyUsage);
 router.get('/history', authMiddleware, activityController.getActivityHistory);
+router.delete('/clear', authMiddleware, activityController.clearActivity);
 
 module.exports = router;

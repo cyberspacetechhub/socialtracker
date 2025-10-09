@@ -6,11 +6,14 @@ import { PLATFORMS } from '../../config/api';
 
 export default function DashboardPage() {
   const today = new Date().toISOString().split('T')[0];
-  const { data: dailyUsage = {}, isLoading } = useDailyUsage(today);
-  const { data: user } = useProfile();
+  const { data: dailyUsage = {}, isLoading: usageLoading, error: usageError } = useDailyUsage(today);
+  const { data: user, isLoading: userLoading, error: userError } = useProfile();
   
   // Enable notifications
   useNotifications();
+  
+  const isLoading = usageLoading || userLoading;
+  const hasError = usageError || userError;
 
   const getTotalUsage = () => {
     return Object.values(dailyUsage).reduce((total, usage) => total + (usage.duration || 0), 0);
@@ -33,8 +36,29 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex justify-center items-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (hasError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex justify-center items-center">
+        <div className="text-center p-6">
+          <ExclamationTriangleIcon className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Unable to load dashboard</h2>
+          <p className="text-gray-600 mb-4">Please check your connection and try again</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -47,7 +71,8 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white">
@@ -149,8 +174,9 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* Usage Chart */}
-      <UsageChart data={dailyUsage} type="daily" />
+        {/* Usage Chart */}
+        <UsageChart data={dailyUsage} type="daily" />
+      </div>
     </div>
   );
 }

@@ -41,6 +41,8 @@ export const resetPassword = (email, code, newPassword) => api.post('/users/rese
 // Activity functions
 export const getDailyActivity = (date) => api.get(`/activity/daily/${date}`);
 export const getWeeklyActivity = () => api.get('/activity/weekly');
+export const getActivityHistory = () => api.get('/activity/history');
+export const clearActivity = () => api.delete('/activity/clear');
 export const updateLimits = (limits) => api.put('/users/limits', { limits });
 export const updateNotifications = (notifications) => api.put('/users/notifications', { notifications });
 

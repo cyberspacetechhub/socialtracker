@@ -1,16 +1,34 @@
 import { useState } from 'react';
-import { FunnelIcon, ClockIcon, CalendarIcon } from '@heroicons/react/24/outline';
+import { FunnelIcon, ClockIcon, CalendarIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useActivityHistory } from '../../services/queries';
+import { clearActivity } from '../../services/api';
 import { PLATFORMS } from '../../config/api';
 
 export default function ActivityPage() {
   const [selectedPlatform, setSelectedPlatform] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isClearing, setIsClearing] = useState(false);
   
-  const { data: activityData, isLoading } = useActivityHistory(
+  const { data: activityData, isLoading, refetch } = useActivityHistory(
     currentPage, 
     selectedPlatform || null
   );
+
+  const handleClearActivity = async () => {
+    if (!confirm('Are you sure you want to clear all activity data? This action cannot be undone.')) {
+      return;
+    }
+    
+    setIsClearing(true);
+    try {
+      await clearActivity();
+      refetch();
+      alert('All activity data cleared successfully!');
+    } catch (error) {
+      alert('Failed to clear activity data. Please try again.');
+    }
+    setIsClearing(false);
+  };
 
   const formatDuration = (minutes) => {
     const hours = Math.floor(minutes / 60);
@@ -66,23 +84,36 @@ export default function ActivityPage() {
 
         {/* Filters */}
         <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center space-x-4">
-            <FunnelIcon className="h-5 w-5 text-gray-400" />
-            <select
-              value={selectedPlatform}
-              onChange={(e) => {
-                setSelectedPlatform(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Platforms</option>
-              {Object.entries(PLATFORMS).map(([key, platform]) => (
-                <option key={key} value={key}>
-                  {platform.name}
-                </option>
-              ))}
-            </select>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <FunnelIcon className="h-5 w-5 text-gray-400" />
+              <select
+                value={selectedPlatform}
+                onChange={(e) => {
+                  setSelectedPlatform(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">All Platforms</option>
+                {Object.entries(PLATFORMS).map(([key, platform]) => (
+                  <option key={key} value={key}>
+                    {platform.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            {activities.length > 0 && (
+              <button
+                onClick={handleClearActivity}
+                disabled={isClearing}
+                className="flex items-center px-4 py-2 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <TrashIcon className="h-4 w-4 mr-2" />
+                {isClearing ? 'Clearing...' : 'Clear All Activity'}
+              </button>
+            )}
           </div>
         </div>
       </div>

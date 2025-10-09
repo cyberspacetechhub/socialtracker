@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { FunnelIcon, ClockIcon, CalendarIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { FunnelIcon, ClockIcon, CalendarIcon, TrashIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { useActivityHistory } from '../../services/queries';
 import { clearActivity } from '../../services/api';
 import { PLATFORMS } from '../../config/api';
+import toast from 'react-hot-toast';
 
 export default function ActivityPage() {
   const [selectedPlatform, setSelectedPlatform] = useState('');
@@ -21,9 +22,14 @@ export default function ActivityPage() {
       await clearActivity();
       refetch();
       setShowClearModal(false);
-      alert('All activity data cleared successfully!');
+      toast.success('All activity data cleared successfully!', {
+        duration: 4000,
+        icon: '🗑️',
+      });
     } catch (error) {
-      alert('Failed to clear activity data. Please try again.');
+      toast.error('Failed to clear activity data. Please try again.', {
+        duration: 4000,
+      });
     }
     setIsClearing(false);
   };

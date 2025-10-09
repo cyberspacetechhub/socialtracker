@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { forgotPassword, verifyResetCode, resetPassword } from '../../services/api';
+import toast from 'react-hot-toast';
 
 export default function ForgotPassword({ onBack }) {
   const [step, setStep] = useState(1); // 1: email, 2: code, 3: new password
@@ -13,10 +14,15 @@ export default function ForgotPassword({ onBack }) {
     mutationFn: forgotPassword,
     onSuccess: () => {
       setStep(2);
-      alert('Reset code sent to your email!');
+      toast.success('Reset code sent to your email!', {
+        duration: 4000,
+        icon: '📧',
+      });
     },
     onError: (error) => {
-      alert(error.response?.data?.error || 'Failed to send reset code');
+      toast.error(error.response?.data?.error || 'Failed to send reset code', {
+        duration: 4000,
+      });
     }
   });
 
@@ -25,20 +31,37 @@ export default function ForgotPassword({ onBack }) {
     onSuccess: (data) => {
       if (data.valid) {
         setStep(3);
+        toast.success('Code verified successfully!', {
+          duration: 3000,
+          icon: '✓',
+        });
       } else {
-        alert('Invalid or expired code');
+        toast.error('Invalid or expired code', {
+          duration: 4000,
+          icon: '⚠️',
+        });
       }
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || 'Failed to verify code', {
+        duration: 4000,
+      });
     }
   });
 
   const resetMutation = useMutation({
     mutationFn: ({ email, code, newPassword }) => resetPassword(email, code, newPassword),
     onSuccess: () => {
-      alert('Password reset successfully!');
-      onBack();
+      toast.success('Password reset successfully!', {
+        duration: 4000,
+        icon: '🔐',
+      });
+      setTimeout(() => onBack(), 1500);
     },
     onError: (error) => {
-      alert(error.response?.data?.error || 'Failed to reset password');
+      toast.error(error.response?.data?.error || 'Failed to reset password', {
+        duration: 4000,
+      });
     }
   });
 
@@ -55,7 +78,10 @@ export default function ForgotPassword({ onBack }) {
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      alert('Passwords do not match');
+      toast.error('Passwords do not match', {
+        duration: 4000,
+        icon: '⚠️',
+      });
       return;
     }
     resetMutation.mutate({ email, code, newPassword });
@@ -83,7 +109,8 @@ export default function ForgotPassword({ onBack }) {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                placeholder="Enter your email address"
                 required
               />
             </div>
@@ -108,7 +135,7 @@ export default function ForgotPassword({ onBack }) {
                 type="text"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-lg tracking-widest"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 text-center text-2xl tracking-widest font-mono"
                 placeholder="000000"
                 maxLength="6"
                 required
@@ -135,7 +162,8 @@ export default function ForgotPassword({ onBack }) {
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                placeholder="Enter new password"
                 minLength="6"
                 required
               />
@@ -149,7 +177,8 @@ export default function ForgotPassword({ onBack }) {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                placeholder="Confirm new password"
                 required
               />
             </div>

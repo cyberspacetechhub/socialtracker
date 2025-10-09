@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { updateProfile, changePassword } from '../../services/api';
+import toast from 'react-hot-toast';
 
 export default function Profile() {
   const { user } = useAuthStore();
@@ -23,9 +24,14 @@ export default function Profile() {
     setLoading(true);
     try {
       await updateProfile(profileData);
-      alert('Profile updated successfully!');
+      toast.success('Profile updated successfully!', {
+        duration: 4000,
+        icon: '✨',
+      });
     } catch (error) {
-      alert(error.response?.data?.error || 'Failed to update profile');
+      toast.error(error.response?.data?.error || 'Failed to update profile', {
+        duration: 4000,
+      });
     }
     setLoading(false);
   };
@@ -33,7 +39,10 @@ export default function Profile() {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('Passwords do not match');
+      toast.error('Passwords do not match', {
+        duration: 4000,
+        icon: '⚠️',
+      });
       return;
     }
     setLoading(true);
@@ -43,9 +52,14 @@ export default function Profile() {
         newPassword: passwordData.newPassword
       });
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      alert('Password changed successfully!');
+      toast.success('Password changed successfully!', {
+        duration: 4000,
+        icon: '🔐',
+      });
     } catch (error) {
-      alert(error.response?.data?.error || 'Failed to change password');
+      toast.error(error.response?.data?.error || 'Failed to change password', {
+        duration: 4000,
+      });
     }
     setLoading(false);
   };

@@ -15,8 +15,6 @@ export default function ActivityPage() {
     selectedPlatform || null
   );
 
-  const [showClearModal, setShowClearModal] = useState(false);
-
   const handleClearActivity = async () => {
     setIsClearing(true);
     try {

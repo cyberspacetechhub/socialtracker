@@ -89,32 +89,32 @@ export default function Navbar() {
 
       {/* Mobile Bottom Navigation */}
       {user && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 bottom-nav-shadow z-50">
-          <div className="grid grid-cols-5 h-16">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-200/50 shadow-2xl z-50">
+          <div className="grid grid-cols-5 h-16 px-2">
             {mobileNavItems.map(({ path, icon: Icon, label }) => {
               const active = isActive(path);
               return (
                 <Link
                   key={path}
                   to={path}
-                  className={`flex flex-col items-center justify-center space-y-1 nav-transition group relative ${
+                  className={`flex flex-col items-center justify-center space-y-1 rounded-xl mx-1 my-2 transition-all duration-300 group relative overflow-hidden ${
                     active
-                      ? 'text-blue-600 bg-blue-50 nav-item-active'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      ? 'text-white bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg transform scale-105'
+                      : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50/80 hover:scale-105'
                   }`}
                 >
-                  <Icon className={`h-5 w-5 transition-transform ${
-                    active ? 'scale-110' : 'group-hover:scale-105'
+                  <Icon className={`h-5 w-5 transition-all duration-300 ${
+                    active ? 'scale-110 drop-shadow-sm' : 'group-hover:scale-110'
                   }`} />
-                  <span className={`text-xs font-medium transition-all ${
+                  <span className={`text-xs font-medium transition-all duration-300 ${
                     active 
-                      ? 'opacity-100 transform translate-y-0' 
-                      : 'opacity-70 group-hover:opacity-100'
+                      ? 'opacity-100 font-semibold drop-shadow-sm' 
+                      : 'opacity-70 group-hover:opacity-100 group-hover:font-semibold'
                   }`}>
                     {label}
                   </span>
                   {active && (
-                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-blue-600 rounded-b-full" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-500/20 rounded-xl" />
                   )}
                 </Link>
               );

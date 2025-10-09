@@ -49,9 +49,9 @@ export default function Onboarding({ onComplete }) {
         <div className="flex justify-end mb-8">
           <button
             onClick={skipOnboarding}
-            className="flex items-center text-gray-500 hover:text-gray-700 transition-colors"
+            className="flex items-center px-4 py-2 text-gray-500 hover:text-white hover:bg-gray-500 rounded-full transition-all duration-200 transform hover:scale-105 border border-gray-300 hover:border-gray-500"
           >
-            <span className="text-sm mr-1">Skip</span>
+            <span className="text-sm mr-2 font-medium">Skip</span>
             <XMarkIcon className="h-4 w-4" />
           </button>
         </div>
@@ -95,7 +95,7 @@ export default function Onboarding({ onComplete }) {
               {currentSlide > 0 && (
                 <button
                   onClick={() => setCurrentSlide(currentSlide - 1)}
-                  className="text-gray-500 hover:text-gray-700 transition-colors"
+                  className="px-4 py-2 text-gray-500 hover:text-white hover:bg-gray-500 rounded-full transition-all duration-200 transform hover:scale-105 border border-gray-300 hover:border-gray-500 font-medium"
                 >
                   Back
                 </button>

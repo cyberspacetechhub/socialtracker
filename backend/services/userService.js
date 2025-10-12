@@ -7,20 +7,13 @@ const config = require('../config/config');
 
 class UserService {
   constructor() {
-    if (config.email.user && config.email.pass || process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-      this.transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: config.email.user || process.env.EMAIL_USER,
-          pass: config.email.pass || process.env.EMAIL_PASS
-        },
-        timeout: 10000
-      });
-      console.log('Email transporter configured for:', config.email.user);
-    } else {
-      console.log('Email configuration missing');
-      this.transporter = null;
-    }
+    this.transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    })
   }
 
   async createUser(userData) {

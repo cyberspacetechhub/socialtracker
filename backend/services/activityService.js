@@ -5,20 +5,13 @@ const config = require('../config/config');
 
 class ActivityService {
   constructor() {
-    if (config.email.user && config.email.pass) {
-      this.transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: config.email.user,
-          pass: config.email.pass
-        },
-        timeout: 10000
-      });
-      console.log('Activity email transporter configured for:', config.email.user);
-    } else {
-      console.log('Email configuration missing for activity service');
-      this.transporter = null;
-    }
+    this.transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    })
   }
 
   async logActivity(userId, platform, url) {

@@ -18,7 +18,7 @@ export default function ForgotPassword({ onBack }) {
     try {
       const response = await forgotPassword(email);
       setStep(2);
-      toast.success(`Your reset code: ${response.data.resetCode}`, {
+      const toastId = toast.success(`Your reset code: ${response.data.resetCode}`, {
         duration: 300000, // 5 minutes
         icon: '🔑',
         style: {
@@ -28,6 +28,8 @@ export default function ForgotPassword({ onBack }) {
           fontWeight: 'bold'
         }
       });
+      // Store toast ID to dismiss later
+      window.resetCodeToastId = toastId;
     } catch (error) {
       toast.error(error.response?.data?.error || 'Failed to send reset code', {
         duration: 4000,
@@ -42,6 +44,10 @@ export default function ForgotPassword({ onBack }) {
     try {
       const response = await verifyResetCode(email, code);
       if (response.data.valid) {
+        // Dismiss the reset code toast
+        if (window.resetCodeToastId) {
+          toast.dismiss(window.resetCodeToastId);
+        }
         setStep(3);
         toast.success('Code verified successfully!', {
           duration: 3000,

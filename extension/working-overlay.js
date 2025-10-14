@@ -264,7 +264,7 @@ async function fetchRealUsageData(platform) {
       if (response && response.success) {
         resolve({
           usage: response.data.usage[platform]?.duration || 0,
-          limit: 90
+          limit: response.data.limits[platform] || 60
         });
       } else {
         resolve(null);

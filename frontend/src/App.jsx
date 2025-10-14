@@ -10,9 +10,11 @@ import ActivityPage from './features/activity/ActivityPage';
 import NotificationsPage from './features/notifications/NotificationsPage';
 import Profile from './components/Profile/Profile';
 import { useAuth } from './hooks/useAuth';
+import { useNotifications } from './hooks/useNotifications';
 
 function App() {
   const { isAuthenticated } = useAuth();
+  useNotifications(); // Enable automatic notifications
 
   return (
     <Router>

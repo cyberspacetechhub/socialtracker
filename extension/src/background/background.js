@@ -244,12 +244,28 @@ async function fetchUsageDataFromAPI(platform) {
   if (!token) throw new Error('No auth token');
   
   const today = new Date().toISOString().split('T')[0];
-  const response = await fetch(`${API_BASE_URL}/activity/daily/${today}`, {
-    headers: { 'Authorization': `Bearer ${token}` }
-  });
   
-  if (!response.ok) throw new Error('API request failed');
-  return await response.json();
+  // Fetch both usage data and user profile for limits
+  const [usageResponse, profileResponse] = await Promise.all([
+    fetch(`${API_BASE_URL}/activity/daily/${today}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }),
+    fetch(`${API_BASE_URL}/users/profile`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+  ]);
+  
+  if (!usageResponse.ok || !profileResponse.ok) {
+    throw new Error('API request failed');
+  }
+  
+  const usageData = await usageResponse.json();
+  const profileData = await profileResponse.json();
+  
+  return {
+    usage: usageData.usage || {},
+    limits: profileData.user.limits || {}
+  };
 }
 
 async function handleTakeBreak(tabId) {

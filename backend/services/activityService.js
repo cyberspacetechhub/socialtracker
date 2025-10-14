@@ -1,6 +1,6 @@
 const ActivityLog = require('../models/ActivityLog');
 const User = require('../models/User');
-const emailService = require('./emailService');
+const Notification = require('../models/Notification');
 const config = require('../config/config');
 
 class ActivityService {
@@ -104,10 +104,18 @@ class ActivityService {
     if (!user.notifications.email) return;
     
     try {
-      await emailService.sendLimitNotification(user.email, platform, usage, limit);
-      console.log(`Email notification sent to ${user.email} for ${platform}`);
+      const notification = new Notification({
+        userId: user._id,
+        type: 'limit_exceeded',
+        platform,
+        message: `You've exceeded your daily limit for ${platform}. Usage: ${usage} minutes, Limit: ${limit} minutes.`,
+        usage,
+        limit
+      });
+      await notification.save();
+      console.log(`Notification saved for ${user.email} for ${platform}`);
     } catch (error) {
-      console.error('Email notification failed:', error.message);
+      console.error('Notification save failed:', error.message);
     }
   }
 }

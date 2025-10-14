@@ -2,20 +2,10 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
+const emailService = require('./emailService');
 const config = require('../config/config');
 
 class UserService {
-  constructor() {
-    this.transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    })
-  }
-
   async createUser(userData) {
     const user = new User(userData);
     await user.save();
@@ -76,13 +66,10 @@ class UserService {
     user.resetCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
     await user.save();
     
-    // For development/testing - log the code if email fails
     try {
-      await this.sendResetEmail(email, resetCode);
-      console.log('Email sent successfully to:', email);
+      await emailService.sendPasswordResetEmail(email, resetCode);
     } catch (error) {
       console.log('Email service unavailable. Reset code for', email, ':', resetCode);
-      // Don't throw error, allow the process to continue
     }
   }
 
@@ -107,54 +94,6 @@ class UserService {
     user.resetCode = undefined;
     user.resetCodeExpires = undefined;
     await user.save();
-  }
-
-  async sendResetEmail(email, code) {
-    if (!this.transporter) {
-      console.log('Email not configured, reset code:', code);
-      return;
-    }
-    
-    console.log('Attempting to send email to:', email);
-    console.log('Using email config:', {
-      user: config.email.user,
-      hasPass: !!config.email.pass
-    });
-    
-    try {
-      
-      const info = await
-        this.transporter.sendMail({
-          from: config.email.user,
-          to: email,
-          subject: 'Password Reset Code - Social Tracker',
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #4f46e5;">Password Reset Request</h2>
-              <p>Your password reset code is:</p>
-              <div style="background: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
-                <span style="font-size: 32px; font-weight: bold; color: #1f2937; letter-spacing: 4px;">${code}</span>
-              </div>
-              <p style="color: #6b7280;">This code will expire in 10 minutes.</p>
-              <p style="color: #6b7280; font-size: 12px;">If you didn't request this, please ignore this email.</p>
-            </div>
-          `
-        })
-      
-        console.log('Email sent successfully:', {
-        messageId: info.messageId,
-        response: info.response,
-        to: email
-      });
-    } catch (error) {
-      console.error('Detailed email error:', {
-        message: error.message,
-        code: error.code,
-        command: error.command,
-        response: error.response
-      });
-      throw error;
-    }
   }
 
   generateUserResponse(user) {

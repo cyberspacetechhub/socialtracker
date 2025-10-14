@@ -1,19 +1,9 @@
 const ActivityLog = require('../models/ActivityLog');
 const User = require('../models/User');
-const nodemailer = require('nodemailer');
+const emailService = require('./emailService');
 const config = require('../config/config');
 
 class ActivityService {
-  constructor() {
-    this.transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    })
-  }
-
   async logActivity(userId, platform, url) {
     const today = new Date().toISOString().split('T')[0];
     
@@ -111,22 +101,10 @@ class ActivityService {
   }
 
   async sendLimitNotification(user, platform, usage, limit) {
-    if (!user.notifications.email || !this.transporter) return;
-    
-    const mailOptions = {
-      from: config.email.user,
-      to: user.email,
-      subject: `Social Media Limit Exceeded - ${platform}`,
-      text: `You've exceeded your daily limit for ${platform}. Usage: ${usage} minutes, Limit: ${limit} minutes.`
-    };
+    if (!user.notifications.email) return;
     
     try {
-      await Promise.race([
-        this.transporter.sendMail(mailOptions),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Email timeout')), 15000)
-        )
-      ]);
+      await emailService.sendLimitNotification(user.email, platform, usage, limit);
       console.log(`Email notification sent to ${user.email} for ${platform}`);
     } catch (error) {
       console.error('Email notification failed:', error.message);

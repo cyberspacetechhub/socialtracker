@@ -122,11 +122,8 @@ class UserService {
     });
     
     try {
-      // First verify the transporter
-      await this.transporter.verify();
-      console.log('SMTP connection verified successfully');
       
-      const info = await Promise.race([
+      const info = await
         this.transporter.sendMail({
           from: config.email.user,
           to: email,
@@ -142,13 +139,9 @@ class UserService {
               <p style="color: #6b7280; font-size: 12px;">If you didn't request this, please ignore this email.</p>
             </div>
           `
-        }),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Email timeout')), 15000)
-        )
-      ]);
+        })
       
-      console.log('Email sent successfully:', {
+        console.log('Email sent successfully:', {
         messageId: info.messageId,
         response: info.response,
         to: email

@@ -20,45 +20,34 @@ export const useNotifications = () => {
       if (!notification.read && !shownNotifications.current.has(notification._id)) {
         shownNotifications.current.add(notification._id);
         
+        const platformName = notification.platform.charAt(0).toUpperCase() + notification.platform.slice(1);
+        
         toast.error(
-          (t) => (
-            <div className="flex items-start justify-between w-full">
-              <div className="flex-1 pr-3">
-                <div className="font-medium text-sm">
-                  {notification.platform.charAt(0).toUpperCase() + notification.platform.slice(1)} Limit Exceeded
-                </div>
-                <div className="text-xs mt-1 text-gray-600">
-                  {notification.usage}m used of {notification.limit}m limit
-                </div>
-              </div>
-              <button
-                onClick={async () => {
-                  toast.dismiss(t.id);
-                  try {
-                    await deleteNotification(notification._id);
-                    queryClient.invalidateQueries(['notifications']);
-                  } catch (error) {
-                    console.error('Failed to delete notification:', error);
-                  }
-                }}
-                className="text-gray-400 hover:text-gray-600 ml-2 text-lg leading-none"
-              >
-                ×
-              </button>
-            </div>
-          ),
+          `${platformName} Limit Exceeded: ${notification.usage}m used of ${notification.limit}m limit`,
           {
-            id: notification._id, // Use notification ID as toast ID
+          {
+            id: notification._id,
             duration: Infinity,
             icon: '⚠️',
             style: {
               background: '#fee2e2',
               color: '#dc2626',
               fontSize: '14px',
-              maxWidth: '350px',
-              padding: '12px'
+              maxWidth: '350px'
             },
-            position: 'top-right'
+            position: 'top-right',
+            action: {
+              label: '×',
+              onClick: async () => {
+                toast.dismiss(notification._id);
+                try {
+                  await deleteNotification(notification._id);
+                  queryClient.invalidateQueries(['notifications']);
+                } catch (error) {
+                  console.error('Failed to delete notification:', error);
+                }
+              }
+            }
           }
         );
       }

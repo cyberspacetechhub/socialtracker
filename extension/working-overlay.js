@@ -30,18 +30,23 @@ function createWorkingOverlay() {
   let dailyLimit = 60;
   let isLimitExceeded = false;
   
-  // Fetch real data from backend
-  fetchRealUsageData(platformKey).then(data => {
-    if (data) {
-      currentUsage = data.usage || 0;
-      dailyLimit = data.limit || 60;
-      isLimitExceeded = currentUsage >= dailyLimit;
-      // Recreate overlay with real data
-      const existing = document.getElementById('tracker-widget');
-      if (existing) existing.remove();
-      createOverlayWithData();
-    }
-  });
+  // Fetch real data from backend and refresh every 30 seconds
+  const updateOverlayData = () => {
+    fetchRealUsageData(platformKey).then(data => {
+      if (data) {
+        currentUsage = data.usage || 0;
+        dailyLimit = data.limit || 60;
+        isLimitExceeded = currentUsage >= dailyLimit;
+        // Recreate overlay with real data
+        const existing = document.getElementById('tracker-widget');
+        if (existing) existing.remove();
+        createOverlayWithData();
+      }
+    });
+  };
+  
+  updateOverlayData();
+  setInterval(updateOverlayData, 30000); // Refresh every 30 seconds
   
   function createOverlayWithData() {
   // Remove existing

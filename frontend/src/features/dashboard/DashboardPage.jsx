@@ -6,8 +6,14 @@ import { PLATFORMS } from '../../config/api';
 
 export default function DashboardPage() {
   const today = new Date().toISOString().split('T')[0];
-  const { data: dailyUsage = {}, isLoading: usageLoading, error: usageError } = useDailyUsage(today);
-  const { data: user, isLoading: userLoading, error: userError } = useProfile();
+  const { data: dailyUsage = {}, isLoading: usageLoading, error: usageError } = useDailyUsage(today, {
+    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchIntervalInBackground: true
+  });
+  const { data: user, isLoading: userLoading, error: userError } = useProfile({
+    refetchInterval: 60000, // Refresh every minute
+    refetchIntervalInBackground: true
+  });
   
   // Enable notifications
   useNotifications();

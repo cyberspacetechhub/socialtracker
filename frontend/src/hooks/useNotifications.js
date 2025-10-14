@@ -9,7 +9,8 @@ export const useNotifications = () => {
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => getNotifications().then(res => res.data.notifications),
-    refetchInterval: 30000, // Check every 30 seconds
+    refetchInterval: 15000, // Check every 15 seconds
+    refetchIntervalInBackground: true,
     enabled: !!localStorage.getItem('token')
   });
 

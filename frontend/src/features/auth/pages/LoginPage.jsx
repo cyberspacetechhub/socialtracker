@@ -29,12 +29,16 @@ export default function LoginPage() {
   };
 
   const onSubmit = async (data) => {
-    const result = await login(data.email, data.password);
-    if (result.success) {
-      toast.success('Welcome back!');
-      navigate('/dashboard');
-    } else {
-      toast.error(result.error);
+    try {
+      const result = await login(data.email, data.password);
+      if (result.success) {
+        toast.success('Welcome back!');
+        navigate('/dashboard');
+      } else {
+        toast.error(result.error || 'Login failed');
+      }
+    } catch (error) {
+      toast.error('Login failed. Please check your credentials.');
     }
   };
 

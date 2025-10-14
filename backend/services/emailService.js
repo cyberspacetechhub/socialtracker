@@ -2,28 +2,16 @@ const nodemailer = require('nodemailer');
 const config = require('../config/config');
 
 class EmailService {
-  constructor() {
-    this.transporter = null;
-    this.initTransporter();
-  }
-
-  initTransporter() {
-    if (!config.email.user || !config.email.pass) {
-      console.log('Email credentials not configured');
-      return;
+  transporter = nodemailer.createTransport({
+  service: 'gmail',
+    auth: {
+      Email: config.email.user,
+      pass: config.email.pass
     }
-
-    this.transporter = nodemailer.createTransporter({
-      service: 'gmail',
-      auth: {
-        user: config.email.user,
-        pass: config.email.pass
-      }
-    });
-  }
+  });
 
   async sendPasswordResetEmail(email, code) {
-    if (!this.transporter) {
+    if (!transporter) {
       throw new Error('Email service not configured');
     }
 
@@ -44,11 +32,11 @@ class EmailService {
       `
     };
 
-    return this.transporter.sendMail(mailOptions);
+    return transporter.sendMail(mailOptions);
   }
 
   async sendLimitNotification(email, platform, usage, limit) {
-    if (!this.transporter) {
+    if (!transporter) {
       throw new Error('Email service not configured');
     }
 
@@ -59,7 +47,7 @@ class EmailService {
       text: `You've exceeded your daily limit for ${platform}. Usage: ${usage} minutes, Limit: ${limit} minutes.`
     };
 
-    return this.transporter.sendMail(mailOptions);
+    return transporter.sendMail(mailOptions);
   }
 }
 

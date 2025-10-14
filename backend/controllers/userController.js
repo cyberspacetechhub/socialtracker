@@ -97,9 +97,10 @@ class UserController {
         return res.status(400).json({ error: 'Email is required' });
       }
       
-      await userService.sendPasswordResetCode(email);
+      const resetCode = await userService.sendPasswordResetCode(email);
       res.json({ 
-        message: 'Reset code generated. If email service is available, code was sent to your email. Otherwise, check server logs for the code.' 
+        message: 'Reset code generated',
+        resetCode: resetCode
       });
     } catch (error) {
       if (error.message === 'User not found') {

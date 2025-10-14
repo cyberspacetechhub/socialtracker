@@ -66,11 +66,7 @@ class UserService {
     user.resetCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
     await user.save();
     
-    try {
-      await emailService.sendPasswordResetEmail(email, resetCode);
-    } catch (error) {
-      console.log('Email service unavailable. Reset code for', email, ':', resetCode);
-    }
+    return resetCode;
   }
 
   async verifyResetCode(email, code) {

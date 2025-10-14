@@ -16,11 +16,17 @@ export default function ForgotPassword({ onBack }) {
     e.preventDefault();
     setLoading(true);
     try {
-      await forgotPassword(email);
+      const response = await forgotPassword(email);
       setStep(2);
-      toast.success('Reset code sent to your email!', {
-        duration: 4000,
-        icon: '📧',
+      toast.success(`Your reset code: ${response.data.resetCode}`, {
+        duration: 300000, // 5 minutes
+        icon: '🔑',
+        style: {
+          background: '#f3f4f6',
+          color: '#1f2937',
+          fontSize: '16px',
+          fontWeight: 'bold'
+        }
       });
     } catch (error) {
       toast.error(error.response?.data?.error || 'Failed to send reset code', {

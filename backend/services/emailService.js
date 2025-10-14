@@ -1,14 +1,13 @@
 const nodemailer = require('nodemailer');
-const config = require('../config/config');
 
 class EmailService {
   constructor() {
-    if (config.email.user && config.email.pass) {
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
       this.transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-          user: config.email.user,
-          pass: config.email.pass
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
         }
       });
     } else {
@@ -22,7 +21,7 @@ class EmailService {
     }
 
     const mailOptions = {
-      from: config.email.user,
+      from: process.env.EMAIL_USER,
       to: email,
       subject: 'Password Reset Code - Social Tracker',
       html: `
@@ -47,7 +46,7 @@ class EmailService {
     }
 
     const mailOptions = {
-      from: config.email.user,
+      from: process.env.EMAIL_USER,
       to: email,
       subject: `Social Media Limit Exceeded - ${platform}`,
       text: `You've exceeded your daily limit for ${platform}. Usage: ${usage} minutes, Limit: ${limit} minutes.`

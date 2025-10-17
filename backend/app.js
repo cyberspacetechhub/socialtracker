@@ -29,7 +29,7 @@ app.use((req, res, next) => {
     'https://my-social-tracker.vercel.app'
   ];
   
-  if (allowedOrigins.includes(origin) || !origin) {
+  if (allowedOrigins.includes(origin) || !origin || (origin && origin.startsWith('chrome-extension://'))) {
     res.header('Access-Control-Allow-Origin', origin || '*');
   }
   

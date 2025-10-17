@@ -29,6 +29,20 @@ const userSchema = new mongoose.Schema({
     email: { type: Boolean, default: true },
     browser: { type: Boolean, default: true }
   },
+  preferences: {
+    studySchedule: {
+      enabled: { type: Boolean, default: false },
+      startTime: { type: String, default: '09:00' },
+      endTime: { type: String, default: '17:00' },
+      days: [{ type: String, enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'], default: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'] }]
+    },
+    reminders: {
+      breakReminders: { type: Boolean, default: true },
+      dailyGoals: { type: Boolean, default: true },
+      weeklyReports: { type: Boolean, default: true }
+    },
+    motivationalMessages: { type: Boolean, default: true }
+  },
   resetCode: String,
   resetCodeExpires: Date
 }, {

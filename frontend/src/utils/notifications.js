@@ -60,3 +60,26 @@ export const showUsageWarningNotification = (platform, usage, limit) => {
     silent: true
   });
 };
+
+// Import toast dynamically to avoid issues if react-hot-toast is not available
+let toast;
+try {
+  toast = require('react-hot-toast').default;
+} catch (e) {
+  // Fallback to console if toast library is not available
+  toast = {
+    success: (msg) => console.log('Success:', msg),
+    error: (msg) => console.error('Error:', msg),
+    info: (msg) => console.info('Info:', msg)
+  };
+}
+
+export const showToast = (message, type = 'info') => {
+  if (type === 'error') {
+    toast.error(message);
+  } else if (type === 'success') {
+    toast.success(message);
+  } else {
+    toast(message);
+  }
+};

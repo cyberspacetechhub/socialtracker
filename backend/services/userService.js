@@ -92,6 +92,14 @@ class UserService {
     await user.save();
   }
 
+  async updatePreferences(userId, preferences) {
+    return User.findByIdAndUpdate(
+      userId,
+      { $set: { preferences } },
+      { new: true }
+    ).select('-password');
+  }
+
   generateUserResponse(user) {
     const token = jwt.sign({ userId: user._id }, config.jwtSecret, { expiresIn: '7d' });
     return {
@@ -101,7 +109,8 @@ class UserService {
         email: user.email,
         name: user.name,
         limits: user.limits,
-        notifications: user.notifications
+        notifications: user.notifications,
+        preferences: user.preferences
       }
     };
   }

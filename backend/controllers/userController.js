@@ -130,6 +130,16 @@ class UserController {
       next(error);
     }
   }
+
+  async updatePreferences(req, res, next) {
+    try {
+      const { preferences } = req.body;
+      const user = await userService.updatePreferences(req.user._id, preferences);
+      res.json({ user });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new UserController();

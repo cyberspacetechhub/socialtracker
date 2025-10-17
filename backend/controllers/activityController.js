@@ -84,6 +84,16 @@ class ActivityController {
     }
   }
 
+  async getMonthlyUsage(req, res, next) {
+    try {
+      const { year, month } = req.params;
+      const usage = await activityService.getMonthlyUsage(req.user._id, parseInt(year), parseInt(month));
+      res.json({ usage });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async clearActivity(req, res, next) {
     try {
       await ActivityLog.deleteMany({ userId: req.user._id });

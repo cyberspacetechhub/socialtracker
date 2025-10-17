@@ -2,6 +2,10 @@ import { ClockIcon, ChartBarIcon, ExclamationTriangleIcon } from '@heroicons/rea
 import { useDailyUsage, useProfile } from '../../services/queries';
 import { useNotifications } from '../../hooks/useNotifications';
 import UsageChart from '../../components/charts/UsageChart';
+import RecommendationPanel from '../../components/RecommendationPanel';
+import PreferencesPanel from '../../components/PreferencesPanel';
+import MonthlyUsageCard from '../../components/MonthlyUsageCard';
+import MotivationalMessage from '../../components/MotivationalMessage';
 import { PLATFORMS } from '../../config/api';
 
 export default function DashboardPage() {
@@ -78,7 +82,11 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 md:p-6">
+      <MotivationalMessage />
       <div className="max-w-7xl mx-auto space-y-8">
+      {/* Recommendations */}
+      <RecommendationPanel />
+      
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white">
@@ -182,6 +190,12 @@ export default function DashboardPage() {
 
         {/* Usage Chart */}
         <UsageChart data={dailyUsage} type="daily" />
+        
+        {/* Additional Panels */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <MonthlyUsageCard />
+          <PreferencesPanel />
+        </div>
       </div>
     </div>
   );

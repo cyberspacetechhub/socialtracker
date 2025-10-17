@@ -11,6 +11,7 @@ router.put('/profile', authMiddleware, userController.updateProfile);
 router.put('/password', authMiddleware, userController.changePassword);
 router.put('/limits', authMiddleware, userController.updateLimits);
 router.put('/notifications', authMiddleware, userController.updateNotifications);
+router.put('/preferences', authMiddleware, userController.updatePreferences);
 router.post('/forgot-password', userController.forgotPassword);
 router.post('/verify-reset-code', userController.verifyResetCode);
 router.post('/reset-password', userController.resetPassword);

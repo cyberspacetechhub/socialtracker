@@ -88,6 +88,35 @@ class ActivityService {
     ]);
   }
 
+  async getMonthlyUsage(userId, year, month) {
+    const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
+    const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+    
+    const activities = await ActivityLog.aggregate([
+      {
+        $match: {
+          userId: userId,
+          date: { $gte: startDate, $lte: endDate }
+        }
+      },
+      {
+        $group: {
+          _id: '$platform',
+          totalDuration: { $sum: '$duration' },
+          totalSessions: { $sum: 1 }
+        }
+      }
+    ]);
+    
+    return activities.reduce((acc, item) => {
+      acc[item._id] = {
+        duration: item.totalDuration,
+        sessions: item.totalSessions
+      };
+      return acc;
+    }, {});
+  }
+
   async checkLimits(userId, platform, date) {
     const user = await User.findById(userId);
     const dailyUsage = await this.getDailyUsage(userId, date);
@@ -113,6 +142,11 @@ class ActivityService {
         limit
       });
       await notification.save();
+      
+      // Generate recommendations when limit is exceeded
+      const recommendationService = require('./recommendationService');
+      await recommendationService.generateRecommendations(user._id);
+      
       console.log(`Notification saved for ${user.email} for ${platform}`);
     } catch (error) {
       console.error('Notification save failed:', error.message);

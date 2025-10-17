@@ -110,7 +110,7 @@ class UserService {
         name: user.name,
         limits: user.limits,
         notifications: user.notifications,
-        preferences: user.preferences
+        preferences: user.preferences || {}
       }
     };
   }

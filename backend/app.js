@@ -20,30 +20,6 @@ const limiter = rateLimit({
 // Middleware
 app.use(limiter);
 
-// Fallback CORS configuration for production
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  const allowedOrigins = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'https://my-social-tracker.vercel.app'
-  ];
-  
-  if (allowedOrigins.includes(origin) || !origin || (origin && origin.startsWith('chrome-extension://'))) {
-    res.header('Access-Control-Allow-Origin', origin || '*');
-  }
-  
-  // res.header('Access-Control-Allow-Credentials', 'true');
-  // res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  // res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-  
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
-  }
-});
-
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));

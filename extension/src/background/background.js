@@ -288,26 +288,50 @@ async function handleTakeBreak(tabId) {
 setInterval(async () => {
   for (const [tabId, session] of activeSessions) {
     const duration = Math.round((new Date() - session.startTime) / (1000 * 60));
-    if (duration > 0 && duration % 5 === 0) { // Check every 5 minutes
-      await checkAndNotifyLimits(session.platform, duration);
+    if (duration > 0) {
+      await checkAndEnforceLimits(tabId, session.platform, duration, session.limit);
     }
   }
 }, 60000);
 
-async function checkAndNotifyLimits(platform, currentUsage) {
+async function checkAndEnforceLimits(tabId, platform, currentUsage, limit) {
   try {
+    // Get total daily usage from API
     const token = await getAuthToken();
     if (!token) return;
 
-    const response = await fetch(`${API_BASE_URL}/users/profile`, {
+    const today = new Date().toISOString().split('T')[0];
+    const response = await fetch(`${API_BASE_URL}/activity/daily/${today}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     
     if (response.ok) {
       const data = await response.json();
-      const limit = data.user.limits[platform] || 60;
+      const totalDailyUsage = data.usage[platform]?.duration || 0;
       
-      if (currentUsage >= limit) {
+      // If exceeded limit by 2+ minutes, force close tab and redirect
+      if (totalDailyUsage >= (limit + 2)) {
+        console.log(`Force closing tab for ${platform}: ${totalDailyUsage}min exceeds ${limit}min limit by 2+ minutes`);
+        
+        // End current session
+        await endSession(tabId);
+        
+        // Open dashboard
+        chrome.tabs.create({ url: 'https://my-social-tracker.vercel.app/dashboard' });
+        
+        // Close the social media tab
+        chrome.tabs.remove(tabId);
+        
+        // Show notification
+        chrome.notifications.create({
+          type: 'basic',
+          iconUrl: 'icon.png',
+          title: 'Time Limit Enforced!',
+          message: `${platform} tab closed - exceeded limit by 2+ minutes. Redirected to dashboard.`
+        });
+      }
+      // Regular limit notification
+      else if (totalDailyUsage >= limit && totalDailyUsage % 5 === 0) {
         chrome.notifications.create({
           type: 'basic',
           iconUrl: 'icon.png',
@@ -317,6 +341,6 @@ async function checkAndNotifyLimits(platform, currentUsage) {
       }
     }
   } catch (error) {
-    console.error('Failed to check limits:', error);
+    console.error('Failed to check and enforce limits:', error);
   }
 }
